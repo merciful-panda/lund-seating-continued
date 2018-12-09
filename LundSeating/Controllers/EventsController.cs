@@ -474,6 +474,12 @@ namespace LundSeating.Controllers
 
                 foreach (var eventGuest in _context.EventGuests.Where(c=>c.EventID == EID))
                 {
+                    /*var Eseat = _context.EventSeats.Where(x => x.EventGuestID == eventGuest.EventGuestID).First().SeatID;
+                    var esection = _context.Seats.Where(x => x.SeatID == Eseat).First().Section;
+                    var erow = _context.Seats.Where(x => x.SeatID == Eseat).First().Row;
+                    var enumb = _context.Seats.Where(x => x.SeatID == Eseat).First().Number;
+                    */
+
                     cmd.CommandText = "Select Seats.Section, Seats.Row, Seats.Number FROM Seats " +
                                 "INNER JOIN EventSeats ON EventSeats.SeatID =Seats.SeatID " +
                                 "INNER JOIN EventGuests ON EventGuests.EventGuestID = EventSeats.EventGuestID " +
