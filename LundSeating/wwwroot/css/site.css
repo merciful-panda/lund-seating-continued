@@ -1,0 +1,93 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Wrapping element */
+/* Set some basic padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Carousel */
+.carousel-caption p {
+    font-size: 20px;
+    line-height: 1.4;
+}
+/*Coltons stuff goes here*/
+.accordion {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    text-align: left;
+    border: none;
+    outline: none;
+    transition: 0.4s;
+}
+
+.active, .accordion:hover {
+    background-color: #ccc;
+}
+
+panel {
+    padding: 0 18px;
+    background-color: white;
+    display: none;
+    overflow: hidden;
+}
+
+/* Make .svg files in the carousel display properly in older browsers */
+.carousel-inner .item img[src$=".svg"] {
+    width: 100%;
+}
+
+/* QR code generator */
+#qrCode {
+    margin: 15px;
+}
+.seatsize {
+    width: 1.7%;
+    height: 3.0%;
+}
+
+.has-guest {
+    stroke-width:2;
+}
+.no-sponsor {
+    fill: #50C878;
+}
+.is-seated{
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
+}
+.is-gold {
+    fill:#FFD700;
+}
+.is-silver {
+    fill: #C0C0C0;
+}
+.is-bronze {
+    fill: #CD7F32;
+}
+.is-platinum {
+    fill: #444;
+}
+.is-super {
+    fill: #50C878;
+}
+
+/* Hide/rearrange for smaller screens */
+@media screen and (max-width: 767px) {
+    /* Hide captions */
+    .carousel-caption {
+        display: none;
+    }
+
+
+}
+
+
+

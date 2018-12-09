@@ -1,0 +1,355 @@
+﻿@model IEnumerable<LundSeating.Models.Event>
+
+@{
+    ViewData["Title"] = "Seats";
+}
+
+<!-- used for the drop downs -->
+ 
+<style>
+    .accordion {
+        background-color: #eee;
+        color: #444;
+        cursor: pointer;
+        padding: 18px;
+        width: 100%;
+        text-align: left;
+        border: none;
+        outline: none;
+        transition: 0.4s;
+    }
+
+        .active, .accordion:hover {
+            background-color: #ccc;
+        }
+
+    panel {
+        padding: 0 18px;
+        background-color: white;
+        display: none;
+        overflow: hidden;
+    }
+</style>
+<h2>Seats</h2>
+<head>
+    <meta http-equiv="x-ua-compatible" content="IE=9">
+</head>
+@*<form method="post" enctype="multipart/form-data">*@
+<form method="post" id="@ViewBag.EID" value="@ViewBag.EID" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-md-8" style="padding-top:10px;">
+
+            <a asp-area="" asp-controller="Events" asp-action="ExportExcel" id="@ViewBag.EID" value="@ViewBag.EID" class="btn btn-default">Export</a>
+        </div>
+    </div>
+    <div id="dvData"></div>
+</form>
+<div class="row" style="padding-right:20px">
+    <div class="col-lg-4" style="overflow-y:scroll; height:700px;">
+        <table class="table">
+            <tbody>
+                @{
+                    foreach (var sponsors in Model.Where(ei => ei.EventId == ViewBag.EID))
+                    //changes need to be made here where we replace one with the id tht is passed from the event index
+                    {
+                        foreach (var sponsor in sponsors.Sponsors)
+                        {
+                            <tr>
+                                <button class="accordion">
+                                    <p id="@sponsor.EventSponsorID" class="eventSponsor" style="cursor:pointer">
+                                        @sponsor.Sponsor.Name
+                                        <a asp-action="Edit" asp-controller="EventSponsors" asp-route-id="@sponsor.EventSponsorID">Edit</a> |
+                                        <a asp-action="Delete" asp-controller="EventSponsors" asp-route-id="@sponsor.EventSponsorID">Delete</a>
+                                    </p>
+                                </button>
+                                <div class="panel">
+                                    @{ foreach (var guests in Model)
+                                        {
+                                            foreach (var guest in guests.Guests.Where(gi => gi.EventSponsorID == sponsor.EventSponsorID))
+                                            {
+                                                if (guests.Seats.Where(c => c.EventGuestID == guest.EventGuestID).Any())
+                                                {
+                                                    <p id="@guest.EventGuestID" class="eventGuest is-seated" style="cursor:pointer">
+                                                        @guest.Guest.Name
+                                                        <a asp-action="Edit" asp-controller="EventGuests" asp-route-id="@guest.EventGuestID">Edit</a> |
+                                                        <a asp-action="Delete" asp-controller="EventGuests" asp-route-id="@guest.EventGuestID">Delete</a>
+                                                    </p>
+                                                }
+                                                else
+                                                {
+                                                    <p id="@guest.EventGuestID" class="eventGuest" style="cursor:pointer">
+                                                        @guest.Guest.Name
+                                                        <a asp-action="Edit" asp-controller="EventGuests" asp-route-id="@guest.EventGuestID">Edit</a> |
+                                                        <a asp-action="Delete" asp-controller="EventGuests" asp-route-id="@guest.EventGuestID">Delete</a>
+                                                    </p>
+                                                }
+                                                <br />
+                                            }
+                                        }
+                                    }
+                                </div>
+                            </tr>
+                        }
+                    }
+                }
+            </tbody>
+        </table>
+    </div> <!-- end table col -->
+    <div class="col-lg-8 col-sm-1">
+        @{
+            foreach (var evnt in Model.Where(ei => ei.EventId == ViewBag.EID))
+            //changes need to be made here where we replace one with the id tht is passed from the event index
+            {
+                <div id="tmp" class="tab-content">
+                    <h2>@evnt.Name</h2>
+                    <svg width="900" height="700" class="tmp" id="seating-@evnt.EventId" name="canvas">
+                        <!--seating-@evnt.EventId -->
+                        <g board>
+                            @{
+                                if (evnt.Seats.Any(e => e.Seat.Section.Equals("Middle")))
+                                {
+
+                                    String @rows = "ABCDEFGHIJKLMNOPQ";
+                                    int x = 300;
+                                    int y = 10;
+
+                                    foreach (char row in rows)
+                                    {
+                                        foreach (var seat in evnt.Seats.Where(i => i.Seat.Row.Equals(row.ToString())).Where(i => i.Seat.Section.Equals("Middle")))
+                                        {
+                                            //this section has been modified to take into account the different sponsorship levels 
+                                            if (String.IsNullOrEmpty(seat.EventGuestID.ToString()))
+                                            {
+
+                                                <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat" style="cursor:pointer" ></rect>
+                                            }
+                                            else
+                                            {
+                                                if (seat.Occupant.Sponsor.SponsorshipLevel.ToString() == "Gold")
+                                                {
+                                                    <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat is-gold has-guest" style="cursor:pointer"></rect>
+
+                                                }
+                                                else if (seat.Occupant.Sponsor.SponsorshipLevel.ToString() =="Bronze")
+                                                {
+                                                    <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat is-bronze has-guest" style="cursor:pointer"></rect>
+
+                                                }
+                                                else if (seat.Occupant.Sponsor.SponsorshipLevel.ToString() == "Silver")
+                                                {
+                                                    <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat  is-silver has-guest" style="cursor:pointer"></rect>
+
+                                                }
+                                                else if (seat.Occupant.Sponsor.SponsorshipLevel.ToString() == "Platinum")
+                                                {
+                                                    <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat is-platinum has-guest" style="cursor:pointer"></rect>
+
+                                                }
+                                                else if (seat.Occupant.Sponsor.SponsorshipLevel.ToString() =="SuperSpecial")
+                                                {
+                                                    <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat is-super has-guest" style="cursor:pointer"></rect>
+
+                                                }
+                                                else
+                                                {
+                                                    <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat no-sponsor has-guest" style="cursor:pointer"></rect>
+                                                }
+                                            }
+                                            x += 20;
+                                        }
+                                        x = 300;
+                                        y += 30;
+
+                                    }
+                                }
+                            }
+                            @{
+                                if (evnt.Seats.Any(e => e.Seat.Section.Equals("Left")))
+                                {
+                                    String @rows = "ABCDEFGHIJKLMNOP";
+                                    int x = 230;
+                                    int y = 10;
+
+                                    foreach (char row in rows)
+                                    {
+                                        foreach (var seat in evnt.Seats.Where(i => i.Seat.Row.Equals(row.ToString())).Where(i => i.Seat.Section.Equals("Left")))
+                                        {
+
+                                            if (String.IsNullOrEmpty(seat.EventGuestID.ToString()))
+                                            {
+                                                <rect id=@seat.EventSeatID name="LundSeat" width="15" height="20" x=@x y=@y class="EventSeat" style="cursor:pointer"></rect>
+
+                                            }
+                                            else
+                                            {
+                                                if (seat.Occupant.Sponsor.SponsorshipLevel.ToString() == "Gold")
+                                                {
+                                                    <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat is-gold has-guest" style="cursor:pointer"></rect>
+
+                                                }
+                                                else if (seat.Occupant.Sponsor.SponsorshipLevel.ToString() =="Bronze")
+                                                {
+                                                    <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat is-bronze has-guest" style="cursor:pointer"></rect>
+
+                                                }
+                                                else if (seat.Occupant.Sponsor.SponsorshipLevel.ToString() == "Silver")
+                                                {
+                                                    <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat is-silver has-guest" style="cursor:pointer"></rect>
+
+                                                }
+                                                else if (seat.Occupant.Sponsor.SponsorshipLevel.ToString() == "Platinum")
+                                                {
+                                                    <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat is-platinum has-guest" style="cursor:pointer"></rect>
+
+                                                }
+                                                else if (seat.Occupant.Sponsor.SponsorshipLevel.ToString() =="SuperSpecial")
+                                                {
+                                                    <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat is-super has-guest" style="cursor:pointer"></rect>
+
+                                                }
+                                                else
+                                                {
+                                                    <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat: no-sponsor: has-guest" style="cursor:pointer"></rect>
+
+                                                }
+
+                                            }
+
+                                            x -= 20;
+                                        }
+                                        x = 230;
+                                        y += 30;
+                                    }
+                                }
+                            }
+                            @{
+                                if (evnt.Seats.Any(e => e.Seat.Section.Equals("Right")))
+                                {
+                                    String @rows = "ABCDEFGHIJKLMNOP";
+                                    int x = 625;
+                                    int y = 10;
+
+                                    foreach (char row in rows)
+                                    {
+                                        foreach (var seat in evnt.Seats.Where(i => i.Seat.Row.Equals(row.ToString())).Where(i => i.Seat.Section.Equals("Right")))
+                                        {
+
+
+                                            if (String.IsNullOrEmpty(seat.EventGuestID.ToString()))
+                                            {
+                                                <rect id=@seat.EventSeatID name="LundSeat" width="15" height="20" x=@x y=@y class="EventSeat" style="cursor:pointer"></rect>
+
+                                            }
+                                            else
+                                            {
+                                                if (seat.Occupant.Sponsor.SponsorshipLevel.ToString() =="Gold")
+                                                {
+                                                    <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat is-gold has-guest" style="cursor:pointer"></rect>
+
+                                                }
+                                                else if (seat.Occupant.Sponsor.SponsorshipLevel.ToString() == "Bronze")
+                                                {
+                                                    <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat is-bronze has-guest" style="cursor:pointer"></rect>
+
+                                                }
+                                                else if (seat.Occupant.Sponsor.SponsorshipLevel.ToString() == "Silver")
+                                                {
+                                                    <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat is-silver has-guest" style="cursor:pointer"></rect>
+
+                                                }
+                                                else if (seat.Occupant.Sponsor.SponsorshipLevel.ToString() == "Platinum")
+                                                {
+                                                    <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat is-platinum has-guest" style="cursor:pointer"></rect>
+
+                                                }
+                                                else if (seat.Occupant.Sponsor.SponsorshipLevel.ToString() == "SuperSpecial")
+                                                {
+                                                    <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat is-super has-guest" style="cursor:pointer"></rect>
+
+                                                }
+                                                else
+                                                {
+                                                    <rect id=@seat.EventSeatID name="LundSeat" draggable="true" width="15" height="20" x=@x y=@y class="EventSeat no-sponsor has-guest" style="cursor:pointer"></rect>
+
+                                                }
+
+                                            }
+
+                                            x += 20;
+                                        }
+                                        x = 625;
+                                        y += 30;
+                                    }
+                                }
+                            }
+                        </g>
+                    </svg>
+                </div>
+                <script>
+                    var acc = document.getElementsByClassName("accordion");
+                    var i;
+                    for (i = 0; i < acc.length; i++) {
+                        acc[i].addEventListener("click", function () {
+                            this.classList.toggle("active");
+                            var panel = this.nextElementSibling;
+                            if (panel.style.display === "block") {
+                                panel.style.display = "none";
+                            } else {
+                                panel.style.display = "block";
+                            }
+                        });
+                    }
+                </script>
+             }
+        }
+    </div>
+    <button class="btn btn-success" onclick="exportToPDF();">
+        export seating chart
+    </button>
+    <div class="modal fade" id="seated-person" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="seated-person-title">Seated Guest</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="modal-remove-guest" class="btn btn-danger">Remove Person</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+                <div class="modal-extra-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- new packages were added to handle exporting the seating chart to a pdf-->
+<!-- is now out of date and needs to be updated or find another solution-->
+<!-- npm package is another solution to convert svg to png-->
+
+
+<script type="text/javascript" src="http://canvg.github.io/canvg/rgbcolor.js"></script>
+<script type="text/javascript" src="http://canvg.github.io/canvg/StackBlur.js"></script>
+<script type="text/javascript" src="http://canvg.github.io/canvg/canvg.js"></script>
+<script>
+    function exportToPDF() {
+        var svg = document.getElementsByClassName("tmp").innerHTML;
+        if (svg)
+            svg.replace(/\r?\n|\r/g, '').trim();
+
+        var canvas = document.createElement('canvas');
+
+        canvas(canvas, svg);
+        var imgData = canvas.toDataURL('image/png');
+        var pdf = new jsPDF('p', 'pt', 'a4');
+        pdf.addImage(imgData, 'png', 40, 40, 75, 75);
+        pdf.save('test.pdf')
+    }
+
+</script>
+

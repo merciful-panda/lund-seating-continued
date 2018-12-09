@@ -1,0 +1,65 @@
+﻿@model IEnumerable<LundSeating.Models.EventSponsor>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index</h2>
+@*<form method="post" asp-action="AddGuest" asp-controller="EventSponsors" />*@
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.SponsorshipLevel)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NumTicketsAllocated)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Event)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Host)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Sponsor)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SponsorshipLevel)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NumTicketsAllocated)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Event.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Host.EmailAddress)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Sponsor.Name)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.EventSponsorID">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.EventSponsorID">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.EventSponsorID">Delete</a>
+                </td>
+                @*<input type="hidden" value="@ViewBag.EID" name="EID" />*@
+                <td>
+                    @*<button type="submit" id="@item.EventSponsorID" class="btn btn-default">Add Guests to Sponsor</button>*@
+                    <a asp-action="AddGuest" asp-route-id="@item.EventSponsorID">Add Guests to Sponsor</a>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>

@@ -1,0 +1,72 @@
+﻿@model IEnumerable<LundSeating.Models.Sponsor>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<link rel="stylesheet" type="text/css" href="/DataTables/datatables.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" charset="utf8" src="/DataTables/datatables.js"></script>
+
+
+<script>
+    $(document).ready(function () {
+        $('#temptable').DataTable();
+    });
+</script>
+
+
+<h2>Sponsors</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+@*<form method="post" enctype="multipart/form-data">*@
+<form enctype="multipart/form-data" asp-controller="Sponsors" asp-action="UploadRazorsEdgeExport2" method="post">
+    <div class="row">
+        <div class="col-md-4">
+            <input type="file" id="fUpload" name="files" multiple class="form-control" />
+        </div>
+        <div class="col-md-8">
+            <input type="submit" id="UploadRazorsEdgeExport2" value="Upload" />
+        </div>
+    </div>
+    <br />
+    <div id="dvData"></div>
+</form>
+<table class="table" id="temptable">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PhoneNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EmailAddress)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PhoneNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EmailAddress)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.SponsorID">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.SponsorID">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.SponsorID">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

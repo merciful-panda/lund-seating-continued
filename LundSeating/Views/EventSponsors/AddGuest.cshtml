@@ -1,0 +1,42 @@
+﻿@model IEnumerable<LundSeating.Models.EventGuest>
+
+
+    <form method="post" asp-action="AddGuest2Sponsor" asp-controller="EventSponsors" />
+
+    <table class="table">
+        <thead>
+            <div style="float: left;">
+                <input type="checkbox" id="Check_all_guests_for_sponsor" name="Check_all_guests_for_sponsor">
+                <label for="Check_all_guests_for_sponsor">
+                    Check all
+                </label>
+            </div>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Event)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Guest)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <input type="hidden" value="@ViewBag.ESID" name="ESID" />
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Event.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Guest.Name)
+                    </td>
+                    <td>
+                        <input type="checkbox" name="eGuests[]" value="@item.EventGuestID" />
+                    </td>
+                </tr>
+            }
+            <button type="submit" class="btn btn-default">Add to Sponsor</button>
+        </tbody>
+    </table>

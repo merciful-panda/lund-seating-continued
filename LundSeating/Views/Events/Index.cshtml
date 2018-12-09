@@ -1,0 +1,66 @@
+﻿@model IEnumerable<LundSeating.Models.Event>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Events</h2>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table" id="temptable">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsLocked)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Date)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsLocked)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.EventId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.EventId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.EventId">Delete</a>
+                </td>
+                <td>
+                    <a asp-action="GuestToEvent" asp-route-id="@item.EventId">Add Guests</a> |
+                    <a asp-action="Seats" asp-route-id="@item.EventId">Seating Chart</a>
+                </td>
+                <td>
+                    <a asp-action="SponsorstoEvent" asp-route-id="@item.EventId">Add Sponsors</a> |
+                    <a asp-controller="EventSponsors" asp-action="Index" asp-route-id="@item.EventId">View Sponsors for Event</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<!--this section was meant to use data tables plug in to cut down the size of the display -->
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#temptable').DataTable();
+    });
+
+</script>
